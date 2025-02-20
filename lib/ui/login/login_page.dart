@@ -1,19 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_list_app/common/common.dart';
+import 'package:todo_list_app/ui/login/bloc/login_cubit.dart';
 import 'package:todo_list_app/ui/register/register_page.dart';
 
-class LoginPage extends StatefulWidget {
-  LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  final _formKey = GlobalKey<FormState>();
-  var _autoValidateMode = AutovalidateMode.disabled;
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,21 +23,41 @@ class _LoginPageState extends State<LoginPage> {
             icon: Icon(Icons.arrow_back_ios_new_outlined,
                 size: 18, color: Colors.white)),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTitle(),
-            _buildForm(),
-            _buildButtonLogin(),
-            _buildOrSplitDivider(),
-            _buildSocialLogin(
-                'assets/png/google.png', 'login_with_google'.tr()),
-            _buildSocialLogin(
-                'assets/png/apple.png', 'login_with_facebook'.tr()),
-            _buildHaveNotAccount(context),
-          ],
-        ),
+      body: BlocProvider(
+        create: (context) => LoginCubit(),
+        child: LoginView(),
+      ),
+    );
+  }
+}
+
+class LoginView extends StatefulWidget {
+  LoginView({super.key});
+
+  @override
+  State<LoginView> createState() => _LoginViewState();
+}
+
+class _LoginViewState extends State<LoginView> {
+  final _formKey = GlobalKey<FormState>();
+  var _autoValidateMode = AutovalidateMode.disabled;
+  var _emailTextController = TextEditingController();
+  var _passwordTextController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTitle(),
+          _buildForm(),
+          _buildButtonLogin(),
+          _buildOrSplitDivider(),
+          _buildSocialLogin('assets/png/google.png', 'login_with_google'.tr()),
+          _buildSocialLogin('assets/png/apple.png', 'login_with_facebook'.tr()),
+          _buildHaveNotAccount(context),
+        ],
       ),
     );
   }
@@ -98,6 +112,8 @@ class _LoginPageState extends State<LoginPage> {
         Container(
           margin: const EdgeInsets.only(top: 8),
           child: TextFormField(
+            controller:
+                isPassword ? _passwordTextController : _emailTextController,
             validator: (String? value) {
               if (!isPassword) {
                 if (value == null || value.isEmpty) {
@@ -266,6 +282,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _onHandleLoginSubmit() {
+    final loginCubit = BlocProvider.of<LoginCubit>(context);
+    final email = _emailTextController.text;
+    final password = _passwordTextController.text;
+    loginCubit.login(email, password);
+
     if (_autoValidateMode == AutovalidateMode.disabled) {
       setState(() {
         _autoValidateMode = AutovalidateMode.always;
