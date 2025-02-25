@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "215450876430",
+    "firebase_url": "https://to-do-list-app-0910-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "to-do-list-app-0910",
+    "storage_bucket": "to-do-list-app-0910.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:215450876430:android:94fd0bd173d91a845c5a5f",
+        "android_client_info": {
+          "package_name": "com.example.todo_list_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpJr-Rak1eewCq4dcaoAbM9aiGKkpa2UA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

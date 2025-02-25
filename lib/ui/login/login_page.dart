@@ -6,6 +6,8 @@ import 'package:todo_list_app/common/common.dart';
 import 'package:todo_list_app/ui/login/bloc/login_cubit.dart';
 import 'package:todo_list_app/ui/register/register_page.dart';
 
+import '../../domains/authentication_repository/authentication_repository.dart';
+
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
@@ -24,7 +26,11 @@ class LoginPage extends StatelessWidget {
                 size: 18, color: Colors.white)),
       ),
       body: BlocProvider(
-        create: (context) => LoginCubit(),
+        create: (context) {
+          final authenticationRepository =
+              context.read<AuthenticationRepository>();
+          return LoginCubit(authenticationRepository);
+        },
         child: LoginView(),
       ),
     );
@@ -285,7 +291,6 @@ class _LoginViewState extends State<LoginView> {
     final loginCubit = BlocProvider.of<LoginCubit>(context);
     final email = _emailTextController.text;
     final password = _passwordTextController.text;
-    loginCubit.login(email, password);
 
     if (_autoValidateMode == AutovalidateMode.disabled) {
       setState(() {
@@ -295,6 +300,7 @@ class _LoginViewState extends State<LoginView> {
     final isValid = _formKey.currentState?.validate() ?? false;
     if (isValid) {
       // call api login
+      loginCubit.login(email, password);
     } else {
       // khong lam gi cả
     }

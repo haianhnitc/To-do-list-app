@@ -1,7 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_list_app/common/common.dart';
 import 'package:todo_list_app/ui/login/login_page.dart';
+import 'package:todo_list_app/ui/register/bloc/register_cubit.dart';
+import '../../domains/authentication_repository/authentication_repository.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
@@ -20,21 +24,47 @@ class RegisterPage extends StatelessWidget {
             icon: Icon(Icons.arrow_back_ios_new_outlined,
                 size: 18, color: Colors.white)),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTitle(),
-            _buildForm(false, 'Username', 'Enter your Username'),
-            _buildForm(true, 'Password', '* * * * * * * *'),
-            _buildForm(true, 'Confirm Password', '* * * * * * * *'),
-            _buildButtonLogin(),
-            _buildOrSplitDivider(),
-            _buildSocialLogin('assets/png/google.png', 'Register with Google'),
-            _buildSocialLogin('assets/png/apple.png', 'Register with Facebook'),
-            _buildHaveAccount(context),
-          ],
-        ),
+      body: BlocProvider(
+        create: (context) {
+          final authenticationRepository =
+              context.read<AuthenticationRepository>();
+          return RegisterCubit(authenticationRepository);
+        },
+        child: RegisterView(),
+      ),
+    );
+  }
+}
+
+class RegisterView extends StatefulWidget {
+  const RegisterView({super.key});
+
+  @override
+  State<RegisterView> createState() => _RegisterViewState();
+}
+
+class _RegisterViewState extends State<RegisterView> {
+  final _emailTextController = TextEditingController();
+  final _passwordTextController = TextEditingController();
+  final _confirmPasswordTextController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTitle(),
+          _buildForm(false, false, 'Username', 'Enter your Username'),
+          _buildForm(true, false, 'Password', '* * * * * * * *'),
+          _buildForm(true, true, 'Confirm Password', '* * * * * * * *'),
+          _buildButtonRegister(),
+          _buildOrSplitDivider(),
+          _buildSocialRegister('assets/png/google.png', 'Register with Google'),
+          _buildSocialRegister(
+              'assets/png/apple.png', 'Register with Facebook'),
+          _buildHaveAccount(context),
+        ],
       ),
     );
   }
@@ -56,7 +86,8 @@ class RegisterPage extends StatelessWidget {
     );
   }
 
-  Widget _buildForm(bool isPassword, String title, String hintText) {
+  Widget _buildForm(
+      bool isPassword, bool isConfirmPassword, String title, String hintText) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 24).copyWith(bottom: 25),
       child: Form(
@@ -74,6 +105,11 @@ class RegisterPage extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(top: 8),
               child: TextFormField(
+                controller: isPassword
+                    ? isConfirmPassword
+                        ? _confirmPasswordTextController
+                        : _passwordTextController
+                    : _emailTextController,
                 decoration: InputDecoration(
                   hintText: hintText,
                   hintStyle: TextStyle(
@@ -101,12 +137,13 @@ class RegisterPage extends StatelessWidget {
     );
   }
 
-  Widget _buildButtonLogin() {
+  Widget _buildButtonRegister() {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 24),
       child: CustomButton(
-        onPressed: () {},
-        textButton: 'Register',
+        onPressed: _onTapRegister,
+
+        textButton: 'register'.tr(),
         backgroundColor: Color(0xff8875FF),
         // disabledBackgroundColor: Color(0xff8875FF).withOpacity(0.5),
         //  nếu có disabledBackgroundColor thì sẽ trở thành onPressed = null
@@ -126,8 +163,8 @@ class RegisterPage extends StatelessWidget {
           ),
           Container(
             margin: EdgeInsets.only(bottom: 4),
-            child: const Text(
-              'or',
+            child: Text(
+              'or'.tr(),
               style: TextStyle(
                 fontFamily: 'Lato',
                 color: Color(0xff979797),
@@ -146,7 +183,7 @@ class RegisterPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSocialLogin(String asset, String textButton) {
+  Widget _buildSocialRegister(String asset, String textButton) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 24).copyWith(top: 20),
       decoration: BoxDecoration(
@@ -185,7 +222,7 @@ class RegisterPage extends StatelessWidget {
       alignment: Alignment.center,
       child: RichText(
           text: TextSpan(
-        text: 'Already have an account?',
+        text: 'already_have_an_account'.tr(),
         style: TextStyle(
           fontFamily: 'Lato',
           color: Colors.white,
@@ -193,7 +230,7 @@ class RegisterPage extends StatelessWidget {
         ),
         children: [
           TextSpan(
-            text: ' Login',
+            text: 'login'.tr(),
             style: TextStyle(
               fontFamily: 'Lato',
               color: Color(0xff8875FF),
@@ -215,5 +252,13 @@ class RegisterPage extends StatelessWidget {
         MaterialPageRoute(
           builder: (context) => LoginPage(),
         ));
+  }
+
+  void _onTapRegister() {
+    final registerCubit = BlocProvider.of<RegisterCubit>(context);
+    final email = _emailTextController.text;
+    final password = _passwordTextController.text;
+
+    registerCubit.register(email, password);
   }
 }

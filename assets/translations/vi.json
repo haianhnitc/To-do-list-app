@@ -46,5 +46,6 @@
     "login_with_facebook": "Đăng nhập với Facebook",
     "or": "hoặc",
     "no_account": "Chưa có tài khoản?",
-    "password_must_be_at_least_8_characters": "Mật khẩu phải có ít nhất 8 ký tự"
+    "password_must_be_at_least_8_characters": "Mật khẩu phải có ít nhất 8 ký tự",
+    "already_have_an_account": "Đã có tài khoản?"
 }   
